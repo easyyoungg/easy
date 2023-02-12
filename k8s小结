@@ -1,1 +1,4 @@
-
+在k8s创建新资源之后，如何通过feild-selector去筛选新资源里面的新字段
+首先在新字段里创建register文件，去添加相对应的映射关系。
+然后再添加从default继承的GetAttrs函数
+最后就能在k8s里面的feild-selector里面通过新字段去筛选资源了。
