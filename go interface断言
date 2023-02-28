@@ -1,0 +1,37 @@
+在go中，有很多数据类型，其中interface类型最为独特，因为interface类型可以转化成任何类型，所以在不知道具体的数据类型的时候，都可以用interface类型来进行传参，操作。
+反之，我们也可以用interface类型去接受任何类型的数据，在函数以interface做为返回值的时候，我们可以以任何数据类型去做为函数的返回值。
+例：
+func test() interface{} {
+  var a int64
+  return a
+}
+在这个例子当中，我们调用test函数之后的返回值是一个interface类型，但我们并不知道这个返回值这个函数返回值的具体类型（int64）。
+这个时候，就可以使用interface的断言操作来判断返回值的具体类型
+例：
+a,ok := test().(int64) // a为int64 ok为bool
+其中a代表将返回值转化为int64之后的结果，而ok则表示转化为int64的操作是否成功，若ok = false 则a的值为空。
+类型断言的作用是：
+  1、可以将interface转化为你想要的类型数据
+  2、可以去通过类型断言与swtich case结合去判断一个未知的数据类型
+  3、可以通过断言去判断一个数据类型是否正确，如果错误则可以尽快返回错误
+类型断言的注意事项是：
+  1、如果断言为[]interface{}类型，则不可与其他类型切片随便断言，转化，仅有interface{}才可以和任何数据类型去进行转化
+  2、在返回值的interface是获取了json数据或者是bson数据之后，不可直接根据json或者是bson的数据类型去创建相对应的结构体，进而通过断言操作直接转化成该结构体，
+  应该事先对获得的interface结构进行marshal再unmarshal的操作，才可以赋值给对应结构体
+  例：
+  {
+    "name" : "easy",
+    "id" : 1,
+  } //mongo数据库 数据格式
+  type student struct{
+    name string
+    id int64
+  } //创建与mongo数据库相对应结构体
+  
+  T，ok := GetMongoData().(student) //获取mongo数据库中数据,并返回一个interface类型，将其直接断言为student类型
+  // T == nil , ok == false 不可直接进行转化 
+  
+  marshalData := Marshal(GetMongoData())
+  data := Unmarshal(marshalData)
+   T，ok := data.(student) //获取mongo数据库中数据后，进行marshal与unmarshal操作再断言为student类型
+  // T == student{name:"easy",id:1} , ok == true 则可以进行转化
